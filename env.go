@@ -5,24 +5,21 @@ import (
 )
 
 type Envs struct {
-	SendMail      string
-	Password      string
-	Server        string
-	RecipientMail string
+	SendMail string
+	Password string
+	Server   string
 }
 
 func GetEnvs() Envs {
 	return Envs{
-		SendMail:      os.Getenv("SEND_MAIL"),
-		Password:      os.Getenv("PASSWORD"),
-		Server:        os.Getenv("SERVER"),
-		RecipientMail: os.Getenv("RECIPIENT_MAIL"),
+		SendMail: os.Getenv("SEND_MAIL"),
+		Password: os.Getenv("PASSWORD"),
+		Server:   os.Getenv("SERVER"),
 	}
 }
 
 func IsEnvsEmpty(envs Envs) bool {
 	return envs.Server == "" ||
 		envs.Password == "" ||
-		envs.SendMail == "" ||
-		envs.RecipientMail == ""
+		envs.SendMail == ""
 }

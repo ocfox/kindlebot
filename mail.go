@@ -70,14 +70,6 @@ func BuildMessage(send EmailAccount, recipient string, attachment Attachment) io
 	return msg
 }
 
-func FromEnvs(envs Envs) (EmailAccount, string) {
-	return EmailAccount{
-		MailAddress: envs.SendMail,
-		Password:    envs.Password,
-		Server:      envs.Server,
-	}, envs.RecipientMail
-}
-
 func SendMail(mail EmailAccount, recipient string, attachment Attachment) {
 
 	auth := sasl.NewPlainClient("", mail.MailAddress, mail.Password)
