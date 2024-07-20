@@ -61,7 +61,6 @@ func BuildMessage(send EmailAccount, recipient string, attachment Attachment) io
 	for k, v := range headers {
 		data = append(data, []byte(fmt.Sprintf("%s: %s\r\n", k, v))...)
 	}
-	println("build msg")
 	data = append(data, []byte("--=_kuroneko\r\n")...)
 	data = append(data, BuildAttachment(attachment)...)
 	data = append(data, []byte("\r\n--=_kuroneko--\r\n")...)
@@ -82,10 +81,8 @@ func FromEnvs(envs Envs) (EmailAccount, string) {
 func SendMail(mail EmailAccount, recipient string, attachment Attachment) {
 
 	auth := sasl.NewPlainClient("", mail.MailAddress, mail.Password)
-	println("authing")
 	msg := BuildMessage(mail, recipient, attachment)
 	to := []string{recipient}
-	println("sending mail")
 	err := smtp.SendMailTLS(mail.Server, auth, mail.MailAddress, to, msg)
 	println("sent mail")
 	if err != nil {

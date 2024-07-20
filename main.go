@@ -33,7 +33,7 @@ func GetFileLink(ctx context.Context, b *bot.Bot, fileID string) string {
 	return b.FileDownloadLink(file)
 }
 
-func HandleMessage(ctx context.Context, b *bot.Bot, update *models.Update) {
+func HandleKindleFile(ctx context.Context, b *bot.Bot, update *models.Update) {
 	if !IsKindleFormat(update) {
 		_, err := b.SendMessage(ctx, &bot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
@@ -70,12 +70,22 @@ func HandleMessage(ctx context.Context, b *bot.Bot, update *models.Update) {
 	})
 }
 
+func HandleUserMail(ctx context.Context, b *bot.Bot, update *models.Update) {
+	email := update.Message.Text[6:]
+	AddUser(update.Message.From.ID, email)
+}
+
+var userMap = ReadUserMap("./users.json")
+
 func main() {
+	file := "./users.json"
+	CreateUserMap(file)
+
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
 	opts := []bot.Option{
-		bot.WithDefaultHandler(HandleMessage),
+		bot.WithDefaultHandler(HandleKindleFile),
 	}
 
 	if IsEnvsEmpty(GetEnvs()) {
@@ -83,9 +93,9 @@ func main() {
 	}
 
 	b, err := bot.New("", opts...)
+	b.RegisterHandler(bot.HandlerTypeMessageText, "/mail", bot.MatchTypePrefix, HandleUserMail)
 	if err != nil {
 		panic(err)
 	}
-
 	b.Start(ctx)
 }

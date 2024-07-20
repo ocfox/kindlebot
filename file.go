@@ -36,7 +36,6 @@ func DownloadFile(file File) Attachment {
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
-	println("downloaded file")
 	if err != nil {
 		panic(err)
 	}
