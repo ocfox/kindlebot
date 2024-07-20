@@ -79,3 +79,10 @@ func UpdateUserFile(file string, userMap UserMap) {
 		panic("Failed to write to file: " + err.Error())
 	}
 }
+
+func GetUserMail(id int64) string {
+	if mail, ok := userMap[id]; ok {
+		return mail
+	}
+	return ""
+}

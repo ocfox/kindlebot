@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"os"
 	"os/signal"
 	"strings"
@@ -54,19 +55,29 @@ func HandleKindleFile(ctx context.Context, b *bot.Bot, update *models.Update) {
 		Server:      envs.Server,
 	}
 
-	println("downloading file")
+	log.Println("downloading file")
 	attachment := DownloadFile(File{
 		Name: update.Message.Document.FileName,
 		Link: fileLink,
 	})
 
-	println("sending mail")
+	log.Println("sending mail")
 
-	SendMail(mail, "test@ocfox.me", attachment)
+	recipients := GetUserMail(update.Message.From.ID)
+
+	if recipients == "" {
+		b.SendMessage(ctx, &bot.SendMessageParams{
+			ChatID: update.Message.Chat.ID,
+			Text:   "No email found\nPlease use /mail <email>",
+		})
+		return
+	}
+
+	SendMail(mail, recipients, attachment)
 
 	b.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: update.Message.Chat.ID,
-		Text:   fileLink,
+		Text:   "Sent " + update.Message.Document.FileName + "to " + recipients,
 	})
 }
 
