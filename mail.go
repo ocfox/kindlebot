@@ -1,9 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/emersion/go-sasl"
@@ -34,19 +35,20 @@ func BuildAttachment(attachment Attachment) []byte {
 	var headers = make(map[string]string)
 	headers["Content-Transfer-Encoding"] = "base64"
 	headers["Content-Type"] = attachment.MIME + "; name=\"" + attachment.Filename + "\""
-	headers["Content-Disposition"] = "attachment; filename=\"" + attachment.Filename + "\""
+	headers["Content-Disposition"] = "attachment; filename=\"" + attachment.Filename + "\"; " + "size=" + fmt.Sprint(len(attachment.Data))
 
 	var data []byte
 
 	for k, v := range headers {
 		data = append(data, []byte(fmt.Sprintf("%s: %s\r\n", k, v))...)
 	}
+	data = append(data, []byte("\r\n")...)
 
 	data = append(data, attachment.Data...)
 	return data
 }
 
-func BuildMessage(send EmailAccount, recipient string, attachment Attachment) *strings.Reader {
+func BuildMessage(send EmailAccount, recipient string, attachment Attachment) io.Reader {
 	var headers = make(map[string]string)
 	headers["MIME-Version"] = "1.0"
 	headers["Date"] = time.Now().Format(time.RFC1123Z)
@@ -64,7 +66,7 @@ func BuildMessage(send EmailAccount, recipient string, attachment Attachment) *s
 	data = append(data, BuildAttachment(attachment)...)
 	data = append(data, []byte("\r\n--=_kuroneko--\r\n")...)
 
-	msg := strings.NewReader(string(data))
+	msg := bytes.NewReader(data)
 
 	return msg
 }
